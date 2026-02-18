@@ -1,0 +1,2 @@
+101,brt,ktm,30
+102,jnk,siraha,35
