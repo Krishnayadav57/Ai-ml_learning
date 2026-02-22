@@ -1,0 +1,9 @@
+tensorflow>=2.12.0
+numpy
+matplotlib
+scikit-learn
+seaborn
+streamlit>=1.28.0
+streamlit-drawable-canvas
+Pillow
+pandas

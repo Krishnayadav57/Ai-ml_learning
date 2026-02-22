@@ -1,3 +1,0 @@
-admin,1234
-kriss,123
-krishna,12

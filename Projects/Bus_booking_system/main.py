@@ -178,29 +178,142 @@ def admin_menu():
     
 def book_ticket(username):
     buses = load_buses()
-    booking = load_booking()
-    
-    bus_no = input("Enter bus number to book :- ")
+    bookings = load_booking()
+
+    bus_no = input("Enter bus number to book: ")
 
     selected_bus = None
-
     for bus in buses:
-        if bus['bus_no'] == bus_no:
+        if bus["bus_no"] == bus_no:
             selected_bus = bus
             break
-        else:
-            print("\nBus not found!!!")
-            return
-        
-    booked_seat = []
 
-    for b in booking:
-        if b["bus_no"] == bus_no:
-            booked_seat.append(b["seat"])
-    if len(booked_seat) == selected_bus['total_seats']:
-        print("All seat are fulled")
+    if not selected_bus:
+        print("Bus not found!\n")
         return
-        
+
+    booked_seats = [b["seat"] for b in bookings if b["bus_no"] == bus_no]
+
+    if len(booked_seats) >= selected_bus["total_seats"]:
+        print("All seats are booked!\n")
+        return
+
+    seat_no = 1
+    while seat_no in booked_seats:
+        seat_no += 1
+
+    ticket_id = "T" + str(len(bookings) + 1)
+
+    with open("bookings.txt", "a") as f:
+        f.write(f"{ticket_id},{bus_no},{username},{seat_no}\n")
+
+    print("\nTicket Booked Successfully!")
+    print(f"Ticket ID : {ticket_id}")
+    print(f"Bus No    : {bus_no}")
+    print(f"Seat No   : {seat_no}")
+    print(f"User      : {username}\n")
 
 
+def cancel_ticket(username):
+    ticket_id = input("Enter ticket ID to cancel: ")
 
+    bookings = load_booking()
+    new_list = []
+    found = False
+
+    for b in bookings:
+        if b["ticket_id"] == ticket_id and b["name"] == username:
+            found = True
+        else:
+            new_list.append(b)
+
+    if not found:
+        print("Ticket not found or not belongs to you!\n")
+        return
+
+    with open("bookings.txt", "w") as f:
+        for b in new_list:
+            f.write(f"{b['ticket_id']},{b['bus_no']},{b['name']},{b['seat']}\n")
+
+    print("Ticket cancelled successfully!\n")
+
+
+def view_my_bookings(username):
+    bookings = load_booking()
+
+    print(f"\n===== BOOKINGS FOR {username} =====")
+    found = False
+    for b in bookings:
+        if b["name"] == username:
+            found = True
+            print("----------------------------------")
+            print(f"Ticket ID : {b['ticket_id']}")
+            print(f"Bus No    : {b['bus_no']}")
+            print(f"Seat No   : {b['seat']}")
+
+    if not found:
+        print("No bookings found!\n")
+    else:
+        print("----------------------------------\n")
+
+
+def user_menu(username):
+    while True:
+        print(f"===== USER MENU ({username}) =====")
+        print("1. Book Ticket")
+        print("2. Cancel Ticket")
+        print("3. View My Bookings")
+        print("4. Logout")
+
+        choice = input("\nEnter choice: ")
+
+        if choice == "1":
+            book_ticket(username)
+        elif choice == "2":
+            cancel_ticket(username)
+        elif choice == "3":
+            view_my_bookings(username)
+        elif choice == "4":
+            print("User logged out!\n")
+            break
+        else:
+            print("Invalid choice!\n")
+
+
+# ================================
+# LOGIN MENU
+# ================================
+def login_menu():
+    while True:
+        print("===== LOGIN PORTAL =====")
+        print("1. Admin Login")
+        print("2. User Register")
+        print("3. User Login")
+        print("4. Exit")
+
+        choice = input("\nEnter choice: ")
+
+        if choice == "1":
+            if admin_login():
+                admin_menu()
+
+        if choice == "2":
+            register_user()
+
+        elif choice == "3":
+            username = users_login()
+            if username:
+                user_menu(username)
+
+        elif choice == "4":
+            print("Thank you for using the system!")
+            exit()
+
+        else:
+            print("Invalid choice!\n")
+
+
+# ================================
+# START PROGRAM
+# ================================
+login_menu()
